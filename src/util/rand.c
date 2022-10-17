@@ -77,7 +77,9 @@ GIT_INLINE(int) getseed(uint64_t *seed)
 GIT_INLINE(int) getseed(uint64_t *seed)
 {
 	struct timeval tv;
+#if !defined(__redox__)
 	double loadavg[3];
+#endif
 	bits convert;
 	int fd;
 
@@ -106,7 +108,9 @@ GIT_INLINE(int) getseed(uint64_t *seed)
 		return -1;
 	}
 
+#if !defined(__redox__)
 	getloadavg(loadavg, 3);
+#endif
 
 	*seed = 0;
 	*seed |= ((uint64_t)tv.tv_usec << 40);
@@ -119,9 +123,11 @@ GIT_INLINE(int) getseed(uint64_t *seed)
 	*seed ^= ((uint64_t)getuid() << 8);
 	*seed ^= ((uint64_t)getgid());
 
+#if !defined(__redox__)
 	convert.f = loadavg[0]; *seed ^= (convert.d >> 36);
 	convert.f = loadavg[1]; *seed ^= (convert.d);
 	convert.f = loadavg[2]; *seed ^= (convert.d >> 16);
+#endif
 
 	convert.f = git__timer(); *seed ^= (convert.d);
 
